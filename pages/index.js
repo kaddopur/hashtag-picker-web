@@ -11,10 +11,14 @@ import Checkbox from '@mui/material/Checkbox';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function Home() {
   const [tagGroups, setTagGroups] = useState({});
   const [data, setData] = useState({});
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     initFirebase();
@@ -45,9 +49,31 @@ export default function Home() {
         })
         .join('\n');
 
+      setOpen(true);
       navigator.clipboard.writeText(tagList);
     },
     [tagGroups, data]
+  );
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
   );
 
   return (
@@ -59,27 +85,40 @@ export default function Home() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box>
+      <Box sx={{ mt: 2 }}>
         <form onSubmit={handleSubmit}>
           {Object.keys(tagGroups).map((tagName) => {
             return (
               <div key={tagName}>
-                <Checkbox
-                  onChange={(e) => {
-                    setData({
-                      ...data,
-                      [tagName]: e.target.checked,
-                    });
-                  }}
-                />
-                {tagGroups[tagName].tags.map((tag) => {
-                  return <Chip sx={{ m: 0.5 }} label={tag} />;
-                })}
+                <Stack direction="row">
+                  <Checkbox
+                    onChange={(e) => {
+                      setData({
+                        ...data,
+                        [tagName]: e.target.checked,
+                      });
+                    }}
+                  />
+                  <Box>
+                    {tagGroups[tagName].tags.map((tag) => {
+                      return <Chip key={tag} sx={{ m: 0.5 }} label={tag} />;
+                    })}
+                  </Box>
+                </Stack>
               </div>
             );
           })}
-          <Stack direction="row" justifyContent="center" sx={{ m: 2 }}>
-            <Button variant="contained">複製</Button>
+          <Stack direction="row" justifyContent="center" sx={{ mt: 2 }}>
+            <Button variant="contained" type="submit">
+              複製
+            </Button>
+            <Snackbar
+              open={open}
+              autoHideDuration={6000}
+              onClose={handleClose}
+              message="文字已複製"
+              action={action}
+            />
           </Stack>
         </form>
       </Box>
