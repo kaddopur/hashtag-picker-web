@@ -1,6 +1,16 @@
 import { useEffect, useState, useCallback } from 'react';
 import { initFirebase } from '../lib/firebaseHelper';
-import { getDatabase, onValue, query, ref, set } from 'firebase/database';
+import { getDatabase, onValue, query, ref } from 'firebase/database';
+
+import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Checkbox from '@mui/material/Checkbox';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 
 export default function Home() {
   const [tagGroups, setTagGroups] = useState({});
@@ -41,26 +51,38 @@ export default function Home() {
   );
 
   return (
-    <form onSubmit={handleSubmit}>
-      {Object.keys(tagGroups).map((tagName) => {
-        return (
-          <div key={tagName}>
-            <input
-              type="checkbox"
-              onChange={(e) => {
-                setData({
-                  ...data,
-                  [tagName]: e.target.checked,
-                });
-              }}
-            ></input>
-            {tagGroups[tagName].tags.map((tag) => {
-              return <span key={tag}>{tag}</span>;
-            })}
-          </div>
-        );
-      })}
-      <input type="submit" value="複製" />
-    </form>
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Hashtag Picker
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Box>
+        <form onSubmit={handleSubmit}>
+          {Object.keys(tagGroups).map((tagName) => {
+            return (
+              <div key={tagName}>
+                <Checkbox
+                  onChange={(e) => {
+                    setData({
+                      ...data,
+                      [tagName]: e.target.checked,
+                    });
+                  }}
+                />
+                {tagGroups[tagName].tags.map((tag) => {
+                  return <Chip sx={{ m: 0.5 }} label={tag} />;
+                })}
+              </div>
+            );
+          })}
+          <Stack direction="row" justifyContent="center" sx={{ m: 2 }}>
+            <Button variant="contained">複製</Button>
+          </Stack>
+        </form>
+      </Box>
+    </Box>
   );
 }
